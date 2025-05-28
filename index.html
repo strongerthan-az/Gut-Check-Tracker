@@ -112,28 +112,47 @@
     const tableBody = document.querySelector("#logTable tbody");
     const emojis = ["💡", "✅", "🧭", "🌟", "🛡️", "🎯", "👣", "🎉"];
 
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
+    function loadEntries() {
+      const saved = localStorage.getItem("gutCheckEntries");
+      if (saved) {
+        const entries = JSON.parse(saved);
+        entries.forEach(entry => addRow(entry));
+      }
+    }
 
-      const date = document.getElementById("date").value;
-      const situation = document.getElementById("situation").value;
-      const feeling = document.getElementById("feeling").value;
-      const action = document.getElementById("action").value;
-      const outcome = document.getElementById("outcome").value;
+    function saveEntry(entry) {
+      const entries = JSON.parse(localStorage.getItem("gutCheckEntries") || "[]");
+      entries.push(entry);
+      localStorage.setItem("gutCheckEntries", JSON.stringify(entries));
+    }
 
+    function addRow(entry) {
       const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-
       const newRow = tableBody.insertRow();
       newRow.innerHTML = `
-        <td>${date} <span class="emoji-tag">${emoji}</span></td>
-        <td>${situation}</td>
-        <td>${feeling}</td>
-        <td>${action}</td>
-        <td>${outcome}</td>
+        <td>${entry.date} <span class="emoji-tag">${emoji}</span></td>
+        <td>${entry.situation}</td>
+        <td>${entry.feeling}</td>
+        <td>${entry.action}</td>
+        <td>${entry.outcome}</td>
       `;
+    }
 
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const entry = {
+        date: document.getElementById("date").value,
+        situation: document.getElementById("situation").value,
+        feeling: document.getElementById("feeling").value,
+        action: document.getElementById("action").value,
+        outcome: document.getElementById("outcome").value
+      };
+      saveEntry(entry);
+      addRow(entry);
       form.reset();
     });
+
+    window.onload = loadEntries;
   </script>
 </body>
 </html>
